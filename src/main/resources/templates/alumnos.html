@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<link href="/css/reloj.css" rel="stylesheet">
+	<script src="/js/reloj.js"></script>
+	<script src="/js/menu.js"></script>
+</head>
+
+<body onload="startTime()">
+
+	<div class="container-lg bg-secondary-subtle">
+
+		<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+			<div class="container-fluid">
+				<a class="navbar-brand">Sistema de Colegio</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+					data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+					aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
+						<li class="nav-item"><a class="nav-link active" aria-current="page" href="/cursos">Cursos</a>
+						</li>
+						<li class="nav-item"><a class="nav-link active" aria-current="page" href="/alumnos">Alumnos</a>
+						</li>
+						<li>
+							<div id="clockdate">
+								<div class="clockdate-wrapper">
+									<div id="clock"></div>
+									<div id="date"></div>
+								</div>
+							</div>
+						</li>
+					</ul>
+					<form class="d-flex" role="search">
+						<input class="form-control me-2" type="search" placeholder="Search" name="buscarA"
+							aria-label="Search" th:value="${buscarHtml}">
+						<button class="btn btn-outline-success bg-warning" type="submit">Search</button>
+					</form>
+				</div>
+			</div>
+		</nav>
+
+		<h1 class="text-center text-primary bg-primary-subtle">Mantenimiento de alumnos</h1>
+		<form th:action="@{/guardarAlumnos}" method="POST" th:object="${alumnosGuardar}">
+			<div class="p-2 m-1">
+				<div class="mb-3 row">
+					<label for="nombre" class="col-sm-3 col-form-label text-primary">Nombre</label>
+					<div class="col-sm-9">
+						<input type="texto" class="form-control text-primary" required minlength="3" maxlength="20"
+							name="nombre" id="nombre" th:field="${alumnosGuardar.nombre}">
+					</div>
+				</div>
+			</div>
+			<div class="p-2 m-1">
+				<div class="mb-3 row">
+					<label for="apellido" class="col-sm-3 col-form-label text-primary">Apellido</label>
+					<div class="col-sm-9">
+						<input type="texto" class="form-control text-primary" required minlength="3" maxlength="20"
+							name="apellido" id="apellido" th:field="${alumnosGuardar.apellido}">
+					</div>
+				</div>
+			</div>
+			<div class="p-2 m-1">
+				<div class="mb-3 row">
+					<label for="edad" class="col-sm-3 col-form-label text-primary">Edad</label>
+					<div class="col-sm-9">
+						<input type="number" class="form-control text-primary" required min="18" max="120" name="edad"
+							id="edad" th:field="${alumnosGuardar.edad}">
+					</div>
+				</div>
+			</div>
+
+			<div class="p-2 m-1">
+				<div class="mb-3 row">
+					<label for="dia" class="col-sm-3 col-form-label text-primary" >Cursos</label>
+					<div class="col-sm-9">
+						<select class="form-select text-primary" name="curso" id="curso" required>
+							<option th:each="curso : ${alumnoSelect}" th:value="${curso.id}"
+								th:text="${' ID: ' + curso.id +' CURSO: '+ curso.titulo + ' PROFESOR: ' + curso.profesor + ' DIA: ' + curso.dia + ' TURNO: ' + curso.turno}">
+							</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div class="mb-3 row">
+				<button type="reset" class="btn btn-danger col-sm-3 m-2">Borrar</button>
+				<button type="submit" class="btn btn-success col-sm-3 m-2">Guardar</button>
+			</div>
+			<div class="mb-3 row">
+				<label for="informacion" class="col-sm-2 col-form-label text-primary">Información</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control text-primary" id="informacion">
+				</div>
+			</div>
+		</form>
+		<div>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">ID</th>
+						<th scope="col">Nombre</th>
+						<th scope="col">Apellido</th>
+						<th scope="col">Edad</th>
+						<th scope="col">IdCurso</th>
+						<th scope="col">Borrar</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="alumno : ${alumnosHtmlTabla}">
+						<td th:text="${alumno.id}"></td>
+						<td th:text="${alumno.nombre}"></td>
+						<td th:text="${alumno.apellido}"></td>
+						<td th:text="${alumno.edad}"></td>
+						<td
+							th:text="${alumno.curso != null ? alumno.curso.id + ' - ' + alumno.curso.titulo : 'Sin curso'}">
+						</td>
+						<td>
+							<form th:action="@{'/borrarAlumno/' + ${alumno.id}}" method="GET" onsubmit="return confirmarEliminacion()">
+								<button type="submit" class="btn btn-danger"><svg xmlns="http://www.w3.org/2000/svg"
+										width="16" height="16" fill="currentColor" class="bi bi-trash"
+										viewBox="0 0 16 16">
+										<path
+											d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z" />
+										<path
+											d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z" />
+									</svg></button>
+							</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+
+		</script>
+		
+</body>
+
+</html>
